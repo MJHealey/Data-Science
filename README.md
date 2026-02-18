@@ -1,7 +1,7 @@
 # Data-Science
 Data Science Portfolio
 
-Masters in Information and Data Science (In progress - Expected Fall 2025)
+Masters in Information and Data Science (MIDS) - Completed Dec 2025
 
 Univeristy of California, Berkeley
 
@@ -15,3 +15,4 @@ Coursework Completed:
 * Natural Language Processing with Deep Learning
 * Machine Learning Systems Engineering
 * Machine Learning at Scale
+* Capstone (https://www.ischool.berkeley.edu/projects/2025/integrams-multimodal-clinical-intelligence-platform-anchored-proteomics-predicting-ms)
