@@ -30,7 +30,7 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 | [LEARN-ECE](./learn-ece/) | NLP · Event Causality | PyTorch, Transformers, MAVEN-ERE | Dec 2024 |
 | [Social Media & Mental Health](./social-media-mental-health/) | Data Visualization · EDA | Tableau, Python | Aug 2024 |
 | [ACME Gourmet Meals Takeoff](./acme-gourmet-meals/) | Graph Analytics · Urban Planning | Python, NetworkX, Harmonic Centrality | May 2024 |
-| [Pawpularity](./pawpularity/) | Computer Vision · Regression | ResNet, PyTorch | May 2024 |
+| [Pawpularity](./pawpularity/) | Computer Vision · Regression | ResNet, PyTorch, TensorFlow | May 2024 |
 | [EV Pricing in Germany](./ev-pricing-germany/) | Regression · Statistical Modeling | Python, Statsmodels | Dec 2023 |
 | [Wildlife Corridors 📄](./wildlife-corridors/Wildlife-Corridors.pdf) | Research Design · Environmental Data Science | Mixed Methods, Linear Regression, ANOVA | Dec 2023 |
 
@@ -52,7 +52,7 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 `UC Berkeley · May 2025`
 
 - Performed EDA and imputation on a multi-year flight dataset
-- Fine-tuned Logistic Regression and Random Forest classifiers with hyperparameter optimization
+- Fine-tuned Logistic Regression and Random Forest classifiers for flight delay prediction.
 - Collaborated on Databricks for distributed processing; team's final XGBoost model achieved **85.3% F1-score**
 
 ---
@@ -118,12 +118,12 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 
 ## Wildlife Corridors 
 **Is the U.S. Government Spending its $350 Million in Wildlife Corridor Funding Wisely?**
-`UC Berkeley · Dec 2023` · [Full Report](./wildlife-corridors/Wildlife-Corridors.pdf)
+`UC Berkeley · Dec 2023` · [Full Report](./wildlife-corridors/wildlife-corridors.pdf)
 
-- Designed a mixed-methods research study to analyze how corridor length and width impact species crossing rates across 1,200+ corridors in the U.S., Canada, Brazil, and the Netherlands
-- Proposed separate linear regression models for predator and prey species; incorporated ANOVA to examine how species variation impacts crossing rates
-- Developed a data collection framework combining public databases, surveys, and camera trap monitoring across a 3-year study timeline
-- Addressed real-world research challenges including confounding environmental variables, geographic bias, and regulatory compliance (IACUC, state video laws)
+- Collaborated on a mixed-methods research study analyzing how corridor length and width impact species crossing rates across 1,200+ corridors in the U.S., Canada, Brazil, and the Netherlands
+- Contributed to proposing separate linear regression models for predator and prey species, incorporating ANOVA to examine how species variation impacts crossing rates
+- Supported development of a data collection framework combining public databases, surveys, and camera trap monitoring across a 3-year study timeline
+- Addressed real-world research challenges including confounding environmental variables, geographic bias, and regulatory compliance (IACUC)
 
 *Research design project — no code. Full report available via the link above.*
 
