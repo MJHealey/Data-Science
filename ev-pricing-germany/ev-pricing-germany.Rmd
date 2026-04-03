@@ -1,0 +1,253 @@
+---
+title: "Assessing the Impact of Energy Efficiency on Electric Vehicle Pricing in Germany"
+subtitle: "Datasci 203: Lab 2, Section 001, Group 1"
+author: "Maria Jose Healey, Beth McBride, Mana Vahid"
+output:
+  bookdown::pdf_document2:
+    toc: false
+    warning: false
+    number_sections: true
+    table_caption: true
+header-includes:
+ \usepackage{wrapfig}
+ \usepackage{float}
+ \floatplacement{figure}{H}
+---
+
+# Introduction
+In the ever-evolving landscape of the automotive industry, electric vehicles (EVs) have emerged as a pivotal factor in shaping sustainable transportation. This research paper seeks to explore the intricate relationship between the energy efficiency of EVs, measured in Watt-hours per kilometer (Wh/km), and their cost, represented by the price in Germany (Euros). Utilizing data from the comprehensive Electric Vehicle Database 2023, which comprises detailed specifications of 308 unique EV models, this study delves into how factors such as acceleration time (seconds), driving range (kilometers), and drivetrain configurations potentially influence this efficiency-cost dynamic. This analysis is crucial not only for potential EV buyers but also for stakeholders and marketing teams within automotive companies who are strategically focused on balancing pricing, efficiency, and market appeal.
+
+Our research question is: What is the effect of energy efficiency (in Wh/km) and cost of an electric vehicle in Germany, and how is this relationship impacted when we consider potential confounding variables of Acceleration (sec), Range (km), and Drivetrain?
+
+```{r load data, message=FALSE, echo=FALSE, include=FALSE}
+# Load libraries
+library(dplyr)
+library(ggplot2)
+library(stargazer)
+library(car)
+library(patchwork)
+library(car)
+library(tidyverse)
+library(psych)
+library(lmtest)
+library(sandwich)
+
+# Load the data
+data <- read.csv("Cheapestelectriccars-EVDatabase 2023.csv", header = TRUE, sep = ",", fill = TRUE)
+
+# View the first few rows of the data to confirm it's loaded correctly
+head(data)
+
+# all the data is loaded as 'character'
+summary(data)
+```
+
+```{r clean data, message=FALSE, echo=FALSE, include=FALSE}
+# Remove units from data and shift to numeric data type
+data$Acceleration <- as.numeric(gsub(" sec", "", data$Acceleration))
+data$TopSpeed <- as.numeric(gsub(" km/h", "", data$TopSpeed))
+data$Range <- as.numeric(gsub(" km", "", data$Range))
+data$Efficiency <- as.numeric(gsub(" Wh/km", "", data$Efficiency))
+data$FastChargeSpeed <- as.numeric(gsub(" km/h", "", data$FastChargeSpeed))
+data$PriceinGermany <- as.numeric(gsub("[€,]", "", data$PriceinGermany))
+data$PriceinUK <- as.numeric(gsub("[£,]", "", data$PriceinUK))
+
+# Update existing NA values to be recognizable by R
+data[data == "N/A"] <- NA
+
+# Create groups for categorical variables
+data$Drive <- as.factor(data$Drive)
+
+# Create a new column 'Brand' based on the first word of the 'Name' column
+data$Brand <- sapply(strsplit(data$Name, " "), `[`, 1)
+# Convert to a factor if you want it to be a categorical variable
+data$Brand <- as.factor(data$Brand)
+
+# Check to see results
+summary(data)
+```
+
+# Data & Methodology
+The data in this study comes from the Electric Vehicle Database 2023 from Kaggle, and contains data scraped from https://ev-database.org/ in April 2023. The data includes all electric vehicles available on the market in April 2023. The unit of observation in the dataset is an individual vehicle model. There are 308 unique vehicle models represented in this dataset, with their attributes, including: acceleration (sec), top speed (km/hr), range (km), efficiency (Wh/km), fast charging speed (km/hr), drivetrain (e.g., AWD, FWD, RWD), and number of seats. In our study, we operationalized the primary independent variable (X), energy efficiency, as 'Efficiency' measured in Watt-hours per kilometer (Wh/km). This choice captures the concept of energy efficiency in electric vehicles by quantifying energy consumption per unit distance, and was already captured in this dataset. The dependent variable (Y), representing the market cost of the vehicle, is operationalized as 'PriceinGermany' in Euros, and was also present in the dataset. However, it's important to note a gap in this operationalization: 'PriceinGermany' may not encompass broader economic considerations such as total ownership cost or potential subsidies. 
+
+Our initial data cleaning involved the removal of 27 observations from the initial dataset due to missing values in either of the variables 'PriceinGermany' or 'Efficiency'. We also applied logarithmic transformations to 'PriceinGermany', 'Efficiency', 'Acceleration', and 'Range' based on our initial data exploration and scatterplots that suggested non-linear relationships. These transformations help to normalize the data and capture the effects of these variables on vehicle price. This analysis is focused on the technical aspects of electric vehicles, so we intentionally excluded certain potential covariates from our analyses, such as 'Brand Prestige' and 'Market Demand'. This is in part due to limitations in available data, but also to maintain the focus on technical vehicle specifications in our analysis. Figure 1 shows how the energy efficiency of electric vehicles impacts their price in Germany, with each dot representing a vehicle. This graph shows that energy efficiency does not seem to strongly determine the price of electric vehicles in Germany. Prices vary widely even among cars with similar efficiency, particularly for All Wheel and Rear Wheel Drives, indicating that other factors like brand and features may also play a crucial role in pricing. High-priced models exist across different efficiency levels, underscoring that efficiency is just one of many aspects influencing EV costs.
+
+
+```{r create-graph, message=FALSE, echo=FALSE, warning=FALSE, fig.cap='Relationship between EV Efficiency and Price in Germany', fig.pos='!b', fig.height = 2.5}
+# Create Graph
+ggplot(data, aes(x = Efficiency, y = PriceinGermany, color = Drive)) +
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'black', se = FALSE) + 
+  labs(x = "Efficiency (Wh/km)",
+       y = "Price in Germany (Euros)",
+       color = "Drive Type") +  # Label for the legend
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "right")  # Position of the legend
+```
+
+We fitted the regression model to the following form:
+
+ln($\hat{PriceinGermany}$) = $\beta_0$ + $\beta_1$  ln(efficiency) + $\beta_2$  ln(acceleration) + $\beta_3$ ln(range) + $\beta_4$ drive + $\epsilon$ 
+
+Where $\beta_0$ is the y-intercept, $\beta_1$ representing the increase in the cost of an electric vehicle due to efficiency, $\beta_2$ represents the reduction in cost of an electric vehicle due to acceleration, $\beta_3$ represents the increase in the cost of an electric vehicle due to the range, $\beta_4$ represents the increase in the cost of an electric vehicle due to the drive train type, and $\epsilon$ is the error term that takes into account all other variables not present in this regression model.
+
+```{r create models, message=FALSE, echo=FALSE, include=FALSE}
+# Model 1 - simple model 
+model_1 <- lm(PriceinGermany ~ Efficiency, data = data)
+summary(model_1)
+
+# Model 2 - model with control variables
+model_2 <- lm(PriceinGermany ~ Efficiency + Acceleration + Range + Drive, data = data)
+summary(model_2)
+
+# Model 3 - model with log transforms
+model_3 <- lm(log(PriceinGermany) ~ log(Efficiency) + log(Acceleration) + log(Range) + Drive, data = data)
+summary(model_3)
+
+# Model 4 - effect of brand on price
+# Including model 4 as a check to see how much of the price is influenced by brand, but not including it in Table 1
+model_4 <-lm(PriceinGermany ~ Brand, data = data)
+summary(model_4)
+
+```
+
+```{r calculate rse, message=FALSE, echo=FALSE,include=FALSE}
+# Calculate RSE for each model
+robust_se_model_1 <- sqrt(diag(vcovHC(model_1, type = "HC1")))
+robust_se_model_2 <- sqrt(diag(vcovHC(model_2, type = "HC1")))
+robust_se_model_3 <- sqrt(diag(vcovHC(model_3, type = "HC1")))
+```
+# Results
+
+Model 3, as shown in Table 1, is the most comprehensive of our regression models. This model demonstrates a significant increase in explanatory power, with an R-squared value of 0.764, indicating that approximately 76.4% of the variability in the cost of electric vehicles in Germany is captured by the model. This is a substantial improvement over the simpler model 1, and model 2 with untransformed control variables. As shown in Table 1, the intercept represents the average price of electric vehicles in Germany. This constant term in the model shows the expected cost of an electric car in Germany when all other independent variables are kept constant. The interpretation of the coefficients in this model is multiplicative because the response variable has been logged. 
+
+In Model 3, a key finding is the positive and statistically significant relationship between vehicle efficiency and cost, as indicated by the coefficient of log(Efficiency) (p < 0.01). In this log-log model, the coefficient value of 1.55 implies that a 1% increase in Efficiency is associated with an average 1.55% increase in the Price in Germany, holding all other variables constant. This suggests that more energy-efficient vehicles are typically associated with a higher price tag. 
+
+Model 3 also reveals a negative association between vehicle acceleration and cost, shown by the significant negative coefficient for log(Acceleration) (p < 0.01). The coefficient value of -0.77 indicates that a 1% decrease in acceleration time (indicating faster acceleration) is associated with an average 0.77% decrease in the Price in Germany. This finding suggests that vehicles with faster acceleration, often seen as high-performance, do not always command higher prices.
+
+The influence of Range on vehicle cost in model 3 shows a positive and significant coefficient for log(Range) (p < 0.01), indicating that a 1% increase in Range is associated with an average 0.38% increase in the Price in Germany. Thus, vehicles offering a longer driving range are typically more expensive, aligning with expectations that enhanced convenience and travel capability are valued higher in the market.
+
+```{r model-table, message=FALSE, echo=FALSE, results='asis'}
+stargazer(model_1, model_2, model_3, type = "latex",
+          title = "Estimated Regressions",
+          dep.var.caption  = "Output Variable: Cost of Vehicle in Germany (Euros)",
+          dep.var.labels   = "",
+          header = FALSE,
+          intercept.bottom = FALSE,
+          intercept.top = TRUE,
+          model.names = FALSE,
+          dep.var.labels.include = FALSE,
+          se = list(robust_se_model_1, robust_se_model_2, robust_se_model_3),
+          omit.stat = c("adj.rsq", "f"), 
+          digits = 2,
+          #notes.append = FALSE,
+          notes = "{robust standard errors in parentheses.}")
+
+```
+The model also indicates a differential impact of drivetrain types on vehicle cost. While Front Wheel Drive vehicles show a significant relationship with cost (p < 0.05), Rear Wheel Drive vehicles do not present a statistically significant effect. Since All Wheel Drive vehicles are the reference category for drivetrain, this result indicates that front-wheel-drive vehicles have a distinct pricing pattern compared to all-wheel-drive vehicles and rear-wheel drive vehicles, potentially due to differences in manufacturing costs, performance, and consumer preferences.
+
+The logarithmic transformations of Efficiency, Acceleration, and Range (log(Efficiency), log(Acceleration), and log(Range)) being significant at the p < 0.01 level demonstrate the non-linear nature of these relationships. For instance, the impact of efficiency on cost increases at a diminishing rate as efficiency improves, a crucial insight for manufacturers considering the trade-offs between vehicle efficiency and cost.
+
+```{r check assumptions, message=FALSE, echo=FALSE, include=FALSE}
+# Check Linear Conditional Expectation Assumption
+
+# Check and handle missing values
+data <- data %>%
+  filter(complete.cases(PriceinGermany, Efficiency, Range, Acceleration, Drive))
+
+# Add predicted values and residuals to your data
+data <- data %>%
+  mutate(
+    model_preds = predict(model_3),
+    model_resids = resid(model_3)
+  )
+
+# Plot of Predicted Values vs. Residuals
+ggplot(data, aes(x = model_preds, y = model_resids)) +
+  geom_point() +
+  geom_smooth(method = "loess", color = "blue") +
+  labs(x = "Predicted Values", y = "Residuals", title = "Predicted vs. Residuals Plot")
+
+# Plot for 'Efficiency' vs residuals
+ggplot(data, aes(x = Efficiency, y = model_resids)) +
+  geom_point() +
+  geom_smooth(method = "loess", color = "blue") +
+  labs(x = "Efficiency", y = "Residuals", title = "Efficiency vs. Residuals Plot")
+
+# Plot for 'Acceleration' vs residuals
+ggplot(data, aes(x = Acceleration, y = model_resids)) +
+  geom_point() +
+  geom_smooth(method = "loess", color = "blue") +
+  labs(x = "Acceleration", y = "Residuals", title = "Acceleration vs. Residuals Plot")
+
+# Plot for 'Range' vs residuals
+ggplot(data, aes(x = Range, y = model_resids)) +
+  geom_point() +
+  geom_smooth(method = "loess", color = "blue") +
+  labs(x = "Range", y = "Residuals", title = "Range vs. Residuals Plot")
+
+# Check No Perfect Collinearity Assumption
+
+# Check the model coefficients
+print(coef(model_3))
+
+# Calculate Variance Inflation Factor (VIF)
+vif_values <- vif(model_3)
+print(vif_values)
+
+# Constant Error Variance
+
+# Add residuals and fitted values to your data
+data <- data %>%
+  mutate(
+    fitted_values = fitted(model_3),
+    residuals = resid(model_3)
+  )
+
+# Residuals vs Fitted Values Plot
+ggplot(data, aes(x = fitted_values, y = residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(x = "Fitted Values", y = "Residuals", title = "Residuals vs Fitted Values Plot")
+
+# Scale-Location Plot
+ggplot(data, aes(x = fitted_values, y = sqrt(abs(residuals)))) +
+  geom_point() +
+  geom_smooth(method = "loess", color = "blue") +
+  labs(x = "Fitted Values", y = "Sqrt(|Residuals|)", title = "Scale-Location Plot")
+
+# Homoskedastic errors
+# Histogram of Residuals
+plot_one <- ggplot(data, aes(x = residuals)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black") +
+  labs(x = "Residuals", y = "Frequency", title = "Histogram of Residuals")
+
+# Q-Q Plot of Residuals
+plot_two <- ggplot(data, aes(sample = residuals)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Q-Q Plot of Residuals")
+
+# Combine plots
+plot_one / plot_two
+```
+
+# Limitations
+
+**Statistical limitations of Model 3:**
+
+*Independent and Identically Distributed Sample:* For this study, we are trying to understand the population of electric vehicles on the market in Germany. This dataset contains all vehicles currently on the market in Germany, so it meets this assumption. Some issues we may encounter include temporal clustering, if we continue to base assumptions off this dataset when new vehicles (perhaps 2024 models) enter the market, they will not have representation in the data. In addition, we may come up against strategic effect (same brand multiple models, if successful they will be imitated). We may also observe anti-clustering as the same brand may create different levels of vehicles for market reach, and another type of clustering as brands may rely on parts from the same suppliers. *Linear Conditional Expectation:* We plotted predicted values vs residuals, which show a clear non-linear relationship. Upon further examination of predictor vs fitted plots, we find that both Acceleration and Range show non-linear relationships that are mitigated by using log transformations. *No Perfect Collinearity:* We examined coefficients of the models and VIF, and found no threat to this assumption. *Constant Error Variance(Homoskedasticity):* We examined a plot of the residuals vs. fitted values, looking for a band of even thickness from left to right. There seems to be no problem with heteroskedacity when looking at the scale-location plot. *Normally Distributed Errors:* The distribution looks normal in both the histogram and qq plot.
+
+**Structural limitations of Model 3:**
+
+Possible omitted variables for this model include:
+
+*Brand Prestige:* Higher-end brands might charge a premium that's not directly related to the efficiency or other measurable features of the car. Direction of Bias: If more prestigious brands also tend to produce more efficient vehicles, omitting brand prestige could lead to an overestimation of the effect of efficiency on price. *Market Demand and Consumer Preferences:* Consumer demand for specific models or features, influenced by trends and marketing, can significantly impact prices. Direction of Bias: If certain efficient models are more in demand, omitting consumer preferences could overstate the effect of efficiency. *Technological Innovations:* Specific technological advancements in battery or motor technology might influence the vehicle's cost beyond its efficiency metrics. Direction of Bias: If new technologies are more common in efficient cars, this omission could inflate the perceived impact of efficiency on price. *Reliability:* Electric vehicles’ batteries degrade at a low rate and with proper care they can last for a long time. Thus, preventing breakdowns. Direction of Bias: This may have a multiplicative interaction with efficiency increasing the effect of efficiency on price. *Cost of replacement parts:* Electric vehicles have fewer parts than their gas-powered counterparts and are more complicated. Therefore, parts are more expensive to replace. Direction of Bias: If this variable is accounted for, it may have a negative effect on the prices.
+
+Reverse Causality:
+In this case, reverse causality would imply that the cost of the vehicle influences its efficiency, rather than the other way around. This could occur if, for example, higher costs allow for more investment in efficient technologies. 
+
+# Conclusion
+In conclusion, our comprehensive analysis of electric vehicle pricing in Germany reveals a clear and nuanced relationship between vehicle characteristics and cost. The study confirms that increased energy efficiency, enhanced performance as indicated by faster acceleration, and extended range are all associated with higher vehicle prices, offering critical insights into consumer pricing dynamics in the electric vehicle market. Ultimately, this study contributes to the broader understanding of the evolving electric vehicle industry, underscoring the importance of strategic pricing models that align with consumer expectations and vehicle performance.
+
