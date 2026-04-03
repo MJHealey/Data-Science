@@ -32,7 +32,7 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 | [ACME Gourmet Meals Takeoff](./acme-gourmet-meals/) | Graph Analytics · Urban Planning | Python, NetworkX, Harmonic Centrality | May 2024 |
 | [Pawpularity](./pawpularity/) | Computer Vision · Regression | ResNet, PyTorch | May 2024 |
 | [EV Pricing in Germany](./ev-pricing-germany/) | Regression · Statistical Modeling | Python, Statsmodels | Dec 2023 |
-| [Wildlife Corridors 📄](./wildlife-corridors/Wildlife Corridors.pdf) | Research Design · Environmental Data Science | Mixed Methods, Linear Regression, ANOVA | Dec 2023 |
+| [Wildlife Corridors 📄](./wildlife-corridors/Wildlife-Corridors.pdf) | Research Design · Environmental Data Science | Mixed Methods, Linear Regression, ANOVA | Dec 2023 |
 
 ---
 
@@ -118,7 +118,7 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 
 ## Wildlife Corridors 
 **Is the U.S. Government Spending its $350 Million in Wildlife Corridor Funding Wisely?**
-`UC Berkeley · Dec 2023` · [Full Report](./wildlife-corridors/Wildlife Corridors.pdf)
+`UC Berkeley · Dec 2023` · [Full Report](./wildlife-corridors/Wildlife-Corridors.pdf)
 
 - Designed a mixed-methods research study to analyze how corridor length and width impact species crossing rates across 1,200+ corridors in the U.S., Canada, Brazil, and the Netherlands
 - Proposed separate linear regression models for predator and prey species; incorporated ANOVA to examine how species variation impacts crossing rates
