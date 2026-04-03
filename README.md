@@ -24,15 +24,15 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 
 | Project | Area | Key Tools | Date |
 |--------|------|-----------|------|
-| [IntegraMS](./IntegraMS/) | Healthcare AI · Survival Modeling · Synthetic Data | Python, HMA Synthesizer, SMOTE, Weibull | Dec 2025 |
-| [Airline Delay Prediction](./Airline Delay Prediction/) | Classification · Distributed ML | XGBoost, Databricks, Scikit-learn | May 2025 |
-| [ML API Deployment](./ML API Deployment/) | MLOps · NLP | FastAPI, Docker, AKS, DistilBERT, Redis | Dec 2024 |
-| [LEARN-ECE](./LEARN-ECE/) | NLP · Event Causality | PyTorch, Transformers, MAVEN-ERE | Dec 2024 |
-| [Social Media & Mental Health](./Social Media & Mental Health/) | Data Visualization · EDA | Tableau, Python | Aug 2024 |
-| [ACME Gourmet Meals Takeoff](./ACME Gourmet Meals Takeoff/) | Graph Analytics · Urban Planning | Python, NetworkX, Harmonic Centrality | May 2024 |
-| [Pawpularity](./Pawpularity/) | Computer Vision · Regression | ResNet, PyTorch | May 2024 |
-| [EV Pricing in Germany](./EV Pricing in Germany/) | Regression · Statistical Modeling | Python, Statsmodels | Dec 2023 |
-| [Wildlife Corridors 📄](./Wildlife Corridors/Wildlife Corridors.pdf) | Research Design · Environmental Data Science | Mixed Methods, Linear Regression, ANOVA | Dec 2023 |
+| [IntegraMS](./integrams/) | Healthcare AI · Survival Modeling · Synthetic Data | Python, HMA Synthesizer, SMOTE, Weibull | Dec 2025 |
+| [Airline Delay Prediction](./airline-delay-prediction/) | Classification · Distributed ML | XGBoost, Databricks, Scikit-learn | May 2025 |
+| [ML API Deployment](./ml-api-deployment/) | MLOps · NLP | FastAPI, Docker, AKS, DistilBERT, Redis | Dec 2024 |
+| [LEARN-ECE](./learn-ece/) | NLP · Event Causality | PyTorch, Transformers, MAVEN-ERE | Dec 2024 |
+| [Social Media & Mental Health](./social-media-mental-health/) | Data Visualization · EDA | Tableau, Python | Aug 2024 |
+| [ACME Gourmet Meals Takeoff](./acme-gourmet-meals/) | Graph Analytics · Urban Planning | Python, NetworkX, Harmonic Centrality | May 2024 |
+| [Pawpularity](./pawpularity/) | Computer Vision · Regression | ResNet, PyTorch | May 2024 |
+| [EV Pricing in Germany](./ev-pricing-germany/) | Regression · Statistical Modeling | Python, Statsmodels | Dec 2023 |
+| [Wildlife Corridors 📄](./wildlife-corridors/Wildlife Corridors.pdf) | Research Design · Environmental Data Science | Mixed Methods, Linear Regression, ANOVA | Dec 2023 |
 
 ---
 
@@ -116,9 +116,9 @@ spanning healthcare AI, NLP, computer vision, and distributed ML.
 
 ---
 
-## Wildlife Corridors 📄
+## Wildlife Corridors 
 **Is the U.S. Government Spending its $350 Million in Wildlife Corridor Funding Wisely?**
-`UC Berkeley · Dec 2023` · [Full Report](./Wildlife Corridors/Wildlife Corridors.pdf)
+`UC Berkeley · Dec 2023` · [Full Report](./wildlife-corridors/Wildlife Corridors.pdf)
 
 - Designed a mixed-methods research study to analyze how corridor length and width impact species crossing rates across 1,200+ corridors in the U.S., Canada, Brazil, and the Netherlands
 - Proposed separate linear regression models for predator and prey species; incorporated ANOVA to examine how species variation impacts crossing rates
